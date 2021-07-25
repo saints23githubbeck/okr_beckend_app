@@ -17,8 +17,10 @@ async function main(){
 
 main()
 const userRoutes =  require("./router/userApiRouter");
+const objectiveRoutes = require('./router/objective.routes');
 
 app.use("/api/users", userRoutes);
+app.use("/api/objectives", objectiveRoutes);
 
 const httpServer = http.Server(app);
 
