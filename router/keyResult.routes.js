@@ -1,6 +1,6 @@
 const express = require("express");
 const db = require("../models/index.js");
-const {objectives, users} = require("../models");
+const {objectives, users, keyresults} = require("../models");
 const router = express.Router();
 
 // router.get('/', async(req, res) => {
@@ -19,58 +19,57 @@ const router = express.Router();
      /* creat new objective 
  ========================================================= */
 router.post("/", async  (req, res) =>{
-     const {user_id, name, description} = req.body
+     const {objective_id, name, description} = req.body
     try{
-        
-       const user = await db.users.findOne({where:{id: user_id}}) 
-             await db.objectives.create({
-        name, description, user_id: user.id
+       const objective = await db.objectives.findOne({where:{id: objective_id}}) 
+             await db.keyResults.create({
+        name, description, objective_id: objective.id
      })
-
-     return  res.status(401).send({ message: 'Objective  created' })
+    
+      return res.status(200).send({ message: 'New Key Result  created' })
 
     }catch{
-        res.status(200).send({ message: 'Objective not created' });   
+        res.status(401).send({ message: 'Key Result not created' });   
     }
 
  });
 
-     /* get all objective 
+     /* get all key Result
  ========================================================= */
  router.get("/", async (req, res)=>{
    try{
-         const objectives = await db.objectives.findAll()
-         res.send(objectives)
+         const keyResults = await db.keyResults.findAll()
+         res.send(keyResults)
    }catch{
-     res.status(404).send({ message: 'No User  Found' });
+     res.status(404).send({ message: 'No Key Result  Found' });
    }
  })
-     /* find single objective
+     /* find single key result
  ========================================================= */
  
  router.get("/:id", async (req, res)=>{
    try{
-         const objective = await db.objectives.findAll({where:{id: req.params.id}})
-         res.send(objective)
+         const keyResult = await db.keyResults.findAll({where:{id: req.params.id}})
+         res.send(keyResult)
    }catch{
-     res.status(404).send({ message: 'No User  Found' });
+     res.status(404).send({ message: 'No Key Result  Found' });
    }
  })
  
-     /* Update Objective
+     /* Update key result
  ========================================================= */
    router.patch('/:id', async (req, res) => {
       
        try{
-            const objective = await db.objectives.update({
+            const keyResult = await db.keyResults.update({
                 name:req.body.name, 
                 description: req.body.description
             },
             {where:{id: req.params.id}});
        
-         res.send({ message: 'UObjective Updated',  objective});
+         res.send({ message: ' Key Result Updated',  keyResult});
        } catch {
-         res.status(404).send({ message: 'objective Not Found' });
+         res.status(404).send({ message: 'Key Result Not Found' });
        }
      });
   
@@ -79,10 +78,10 @@ router.post("/", async  (req, res) =>{
  ========================================================= */
    router.delete('/:id', async (req, res) => {
        try{
-        const objective =   await db.objectives.destroy({where:{id: req.params.id}});
-       res.send({ message: 'objective Deleted' ,objective});
+        const keyResult =   await db.keyResults.destroy({where:{id: req.params.id}});
+       res.send({ message: 'Key Result Deleted' ,keyResult});
        } catch {
-        res.status(404).send({ message: 'objective Not Found'});
+        res.status(404).send({ message: 'Key Result Not Found'});
        }
      });
    

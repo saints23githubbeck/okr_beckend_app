@@ -13,14 +13,15 @@ async function main(){
       
   })
 }
-
-
 main()
+
 const userRoutes =  require("./router/userApiRouter");
 const objectiveRoutes = require('./router/objective.routes');
+const keyResultRoutes = require('./router/keyResult.routes');
 
 app.use("/api/users", userRoutes);
 app.use("/api/objectives", objectiveRoutes);
+app.use("/api/keyResults", keyResultRoutes);
 
 const httpServer = http.Server(app);
 
