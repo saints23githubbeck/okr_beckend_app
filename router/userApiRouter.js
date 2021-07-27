@@ -1,20 +1,27 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../models/index.js");
-const users = require("../models/users.js");
+const {users} = require("../models")
+
 
     /* user register
 ========================================================= */
-router.post("/register", async  (req, res) =>{
-   await db.users.create({
+router.post("/", async  (req, res) =>{
+  try{
+  const user = await db.users.create({
        name: req.body.name ,
        email: req.body.email,
        password: req.body.password,
-    }).then(newUser => res.send(newUser));
+    });
+   res.status(200).send({ message: 'User Crated', user });
+  }catch{
+    res.status(401).send({ message: 'Somthing Went Wrong' });
+  }
 });
     /* user login
 ========================================================= */
-router.post("/login", async (req, res) => {
+router.get("/login", async (req, res) => {
+    try{
       const user = await db.users.findOne({ where: { email: req.body.email, password: req.body.password } });
       if (user) {
         if (bcrypt.compareSync(req.body.password, user.password)) {
@@ -23,18 +30,22 @@ router.post("/login", async (req, res) => {
             name: user.name,
             email: user.email,
           });
-          return;
+       
         }
+        res.send({ message: 'User Updated', user });
       }
-      res.status(401).send({ message: 'Invalid email or password' });
+    }catch{
+       res.status(401).send({ message: 'Invalid email or password' });
+    }
+     
     });
 
     /* get all user 
 ========================================================= */
-router.get("/all", async (req, res)=>{
+router.get("/", async (req, res)=>{
   try{
         const user = await db.users.findAll()
-        res.send(user)
+        res.send(user).then(User => res.send(User))
   }catch{
     res.status(404).send({ message: 'No User  Found' });
   }
@@ -42,10 +53,10 @@ router.get("/all", async (req, res)=>{
     /* user find
 ========================================================= */
 
-router.get("/findone", async (req, res)=>{
+router.get("/:id", async (req, res)=>{
   try{
-        const user = await db.users.findOne()
-        res.send(user)
+        const user = await db.users.findAll({where:{id: req.params.id}})
+        res.send(user).then(User => res.send(User))
   }catch{
     res.status(404).send({ message: 'No User  Found' });
   }
@@ -53,7 +64,7 @@ router.get("/findone", async (req, res)=>{
 
     /* user profile update
 ========================================================= */
- router.put('/profile/:id', async (req, res) => {
+ router.patch('/profile/:id', async (req, res) => {
     const user = await db.users.update(req.params.id);
       if (user) {
         user.name = req.body.name || user.name;
@@ -73,14 +84,14 @@ router.get("/findone", async (req, res)=>{
   
     /* user delete
 ========================================================= */
-  router.post('/:id', async (req, res) => {
-      const user = await db.users.delete(req.params.id);
+  router.delete('/:id', async (req, res) => {
+      const user = await db.users.destroy({where:{id: req.params.id}});
       if (user) {
         if (user.email === 'arthurshdrack45@gmail.com') {
           res.status(400).send({ message: 'Can Not Delete Admin User' });
           return;
         }
-        res.send({ message: 'User Deleted', user: deleteUser });
+        res.send({ message: 'User Deleted', user});
       } else {
         res.status(404).send({ message: 'User Not Found' });
       }
@@ -88,21 +99,24 @@ router.get("/findone", async (req, res)=>{
   
     /* user update
 ========================================================= */
-  router.put('/:id', async (req, res) => {
-      const user = await db.users.update(req.params.id);
-      if (user) {
-        user.name = req.body.name || user.name;
-        user.email = req.body.email || user.email;
-        user.password = req.body.password || user.password;
-        res.send({ message: 'User Updated', user: updatedUser });
-      } else {
+  router.patch('/:id', async (req, res) => {
+    try{
+      const user = await db.users.update({
+        name: req.body.name,
+         email:req.body.email,
+        password:req.body.password
+      },
+      {where:{id: req.params.id}});
+    
+        res.send({ message: 'User Updated', user });
+      } catch {
         res.status(404).send({ message: 'User Not Found' });
       }
     });
 
     /* Logout Route
 ========================================================= */
-router.delete('/logout', async (req, res) => {
+router.delete('/', async (req, res) => {
   const { users, cookies: { auth_token: authToken } } = req
   if (users && authToken) {
     await req.users.logout(authToken);
