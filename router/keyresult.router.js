@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const { Objective ,User} = require('../models/index');
+const { Objective ,User, Keyresult} = require('../models/index');
 
 router.get("/", (req, res)=>{
   try{
-    res.send( Objective.findAll());
+    res.send( Keyresult.findAll());
   }catch{
     res.sendStatus(500);
   }
@@ -12,7 +12,7 @@ router.get("/", (req, res)=>{
 
 router.get("/:id",(req, res)=>{
   try {
-    res.send( Objective.findAll({
+    res.send( Keyresult.findAll({
       where: { id: req.params.id },
       order: [['createdAt', 'DESC']]
     }));
@@ -23,9 +23,9 @@ router.get("/:id",(req, res)=>{
 
 router.post("/", (req, res) => {
     try {
-      
-         Objective.create({
+        Keyresult.create({
           ownerUsername: req.body.ownerUsername,
+          obj_id: req.body.obj_id,
           title: req.body.title,
           organizationType: req.body.organizationType,
           period: req.body.period,
@@ -43,7 +43,7 @@ router.post("/", (req, res) => {
  
 router.patch('/:id',  (req, res) => {
       try{
-          Objective.update({
+        Keyresult.update({
             title: req.body.title,
             type: req.body.type,
             period: req.body.period,
@@ -63,7 +63,7 @@ router.patch('/:id',  (req, res) => {
 
 router.delete('/:id',  (req, res) => {
     try{
-      Objective.destroy({
+        Keyresult.destroy({
         where: { id: req.params.id}
       });
       res.send();

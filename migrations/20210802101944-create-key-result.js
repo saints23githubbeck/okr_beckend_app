@@ -1,24 +1,19 @@
 'use strict';
 module.exports = {
-  up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('Objectives', {
+  up: async (queryInterface, Sequelize) => {
+    await queryInterface.createTable('keyResults', {
       id: {
         primaryKey: true,
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4
       },
-      title: {
+      titlt: {
         type: Sequelize.STRING
       },
       description: {
         type: Sequelize.STRING
       },
-      organizationType: {
-        type: Sequelize.ENUM,
-        values: ['individual', 'team','organization'],
-        defaultValue: 'organization',
-      },
-      ownerUsername: {
+      onerUsername: {
         type: Sequelize.STRING,
         onDelete: 'SET NULL',
         onUpdate: 'CASCADE',
@@ -27,24 +22,31 @@ module.exports = {
           key: 'username'
         }
       },
-      progressType: {
+      startdate: {
+        type: Sequelize.DATE,
+        allowNull:false
+      },
+      endDate: {
+        type: Sequelize.DATE,
+        allowNull:false
+      },
+      period: {
+        type: Sequelize.STRING,
+        allowNull:false
+      },
+      progreeType: {
         type: Sequelize.ENUM,
         defaultValue: 'automatic',
         values: ['manual', 'automatic']
       },
-      starttDate: {
-        type: Sequelize.DATE,
-        allowNull: false,
-        defaultValue: new Date()
-      }, 
-      endtDate: {
-        type: Sequelize.DATE,
-        allowNull: false,
-        defaultValue: new Date()
+      organizationType: {
+        type: Sequelize.ENUM,
+        values: ['individual', 'team','organization'],
+        defaultValue: 'organization',
       },
-      period: {
+      obj_id: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull:false
       },
       createdAt: {
         allowNull: false,
@@ -58,7 +60,7 @@ module.exports = {
       }
     });
   },
-  down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('Objectives');
+  down: async (queryInterface, Sequelize) => {
+    await queryInterface.dropTable('keyResults');
   }
 };

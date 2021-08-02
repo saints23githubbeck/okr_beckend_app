@@ -1,8 +1,8 @@
 {
   "development": {
     "username": "root",
-    "password": "Tjnqmf%root2018",
-    "database": "okr_ap_db",
+    "password": "",
+    "database": "okr_app_db",
     "host": "127.0.0.1",
     "dialect": "mysql",
     "operatorAlises": 0,

@@ -13,7 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 // const objectiveRoutes = require('./router/objective.routes');
 // const keyResultRoutes = require('./router/keyResult.routes');
 
-// app.use("/api/users", userRoutes);
+ app.use("/api/users", require('./router/userApiRouter'));
 app.use("/api/objectives", require('./router/objective.routes'));
 // app.use("/api/keyResults", keyResultRoutes);
 

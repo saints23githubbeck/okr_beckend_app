@@ -1,6 +1,6 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
-  const Objective = sequelize.define('Objective', {
+  const Keyresult = sequelize.define('Keyresult', {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
@@ -34,11 +34,14 @@ module.exports = (sequelize, DataTypes) => {
     period: {
       type: DataTypes.STRING,
     },
+    obj_id: {
+      type: DataTypes.STRING,
+    },
   }, {});
-  Objective.associate = function(models) {
+  Keyresult.associate = function(models) {
     // associations can be defined here
-    Objective.belongsTo(models.User, {foreignKey: 'ownerUsername'})
-    Objective.hasMany(models.Keyresult, {foreignKey: 'obj_id'})
+    Keyresult.belongsTo(models.User, {foreignKey: 'ownerUsername'})
+    Keyresult.belongsTo(models.Objective, {foreignKey: 'obj_id'})
   };
-  return Objective;
+  return Keyresult;
 };

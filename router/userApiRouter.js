@@ -1,72 +1,80 @@
 const express = require("express");
 const router = express.Router();
 const { User } = require("../models/index")
+const bcrypt = require('bcrypt');
 
     /* user register
 ========================================================= */
-router.post("/", async  (req, res) =>{
+router.post("/",  (req, res) =>{
   try{
-  const user = await User.create({
-       name: req.body.name ,
+    
+  const user = User.create({
+       username: req.body.username ,
+       firstName: req.body.firstName,
+       lastName: req.body.lastName,
        email: req.body.email,
-       password: req.body.password,
+       password: bcrypt.hashSync(req.body.password, 10),
     });
-   res.status(200).send({ message: 'User Crated', user });
-  }catch{
-    res.status(401).send({ message: 'Somthing Went Wrong' });
+   res.sendStatus(200).send(user);
+  }catch (e){
+    console.log(e)
+    res.sendStatus(401);
   }
 });
     /* user login
 ========================================================= */
-router.get("/login", async (req, res) => {
+router.get("/login",  (req, res) => {
     try{
-      const user = await User.findOne({ where: { email: req.body.email, password: req.body.password } });
+      const user =  User.findOne({ where: { email: req.body.email, password: req.body.password } });
       if (user) {
         if (bcrypt.compareSync(req.body.password, user.password)) {
-          res.send(user);
-       
+          res.sendStatus(200).send(user);
         }
-        res.send({ message: 'User Updated', user });
+        res.sendStatus(200).send( user );
       }
     }catch{
-       res.status(401).send({ message: 'Invalid email or password' });
+       res.sendStatus(401);
     }
      
     });
 
     /* get all user 
 ========================================================= */
-router.get("/", async (req, res)=>{
+router.get("/",  (req, res)=>{
   try{
-    const users = await User.findAll();
-    res.send(users);
+    const users = User.findAll();
+    res.sendStatus(200).send(users);
   }catch{
-    res.status(404).send({ message: 'No User  Found' });
+    res.sendStatus(404);
   }
 })
     /* user find
 ========================================================= */
 
-router.get("/:id", async (req, res)=>{
+router.get("/:username", (req, res)=>{
   try{
-        const user = await User.findAll({where:{id: req.params.id}})
-        res.send(user).then(User => res.send(User))
+        const user = User.findAll({
+          where:{username: req.params.username}
+          ,order: [['createdAt', 'DESC']]})
+        res.sendStatus(200).send(user)
   }catch{
-    res.status(404).send({ message: 'No User  Found' });
+    res.sendStatus(404);
   }
 })
 
     /* user profile update
 ========================================================= */
- router.patch('/profile/:id', async (req, res) => {
-    const user = await User.update(req.params.id);
+ router.patch('/profile/:id',  (req, res) => {
+    const user =  User.update(req.params.id);
       if (user) {
-        user.name = req.body.name || user.name;
+        user.username = req.body.username || user.username;
+        user.firstName = req.body.firstName || user.firstName;
+        user.lastName = req.body.lastName || user.lastName;
         user.email = req.body.email || user.email;
         if (req.body.password) {
           user.password = password;
         }
-        res.send({
+        res.sendStatus(200).send({
           _id: updatedUser._id,
           name: updatedUser.name,
           email: updatedUser.email,
@@ -78,47 +86,60 @@ router.get("/:id", async (req, res)=>{
   
     /* user delete
 ========================================================= */
-  router.delete('/:id', async (req, res) => {
-      const user = await User.destroy({where:{id: req.params.id}});
-      if (user) {
-        if (user.email === 'arthurshdrack45@gmail.com') {
-          res.status(400).send({ message: 'Can Not Delete Admin User' });
-          return;
-        }
-        res.send({ message: 'User Deleted', user});
-      } else {
-        res.status(404).send({ message: 'User Not Found' });
+  router.delete('/:username', (req, res) => {
+      try {
+           User.destroy({where:{username: req.params.username}});
+          res.sendStatus(200); 
+      } catch {
+        res.sendStatus(404);
       }
     });
   
     /* user update
 ========================================================= */
-  router.patch('/:id', async (req, res) => {
-    try{
-      const user = await User.update({
-        name: req.body.name,
-         email:req.body.email,
-        password:req.body.password
-      },
-      {where:{id: req.params.id}});
+  // router.patch('/:username', (req, res) => {
+  //   try{
+  //       User.update({
+  //       username: req.body.username || User.username, 
+  //      firstName: req.body.firstName || User.firstName,
+  //      lastName: reg.body.lastName || User.lastName,
+  //      email: req.body.email || User.email,
+  //      password: bcrypt.hashSync(req.body.password, 10) || User.password,
+  //     },
+  //     {where:{username: req.params.username}});
     
-        res.send({ message: 'User Updated', user });
-      } catch {
-        res.status(404).send({ message: 'User Not Found' });
-      }
-    });
+  //       res.sendStatus(200);
+  //     } catch {
+  //       res.sendStatus(404);
+  //     }
+  //   });
 
+  router.patch("/:username",  (req, res) =>{
+    try{
+      
+    const user = User.update({ username: req.body.username ,
+         firstName: req.body.firstName,
+         lastName: req.body.lastName,
+         email: req.body.email,
+         password: bcrypt.hashSync(req.body.password, 10)}
+        ,{where: {username: req.params.username} }
+         
+      );
+     res.sendStatus(200);
+    }catch (e){
+      console.log(e)
+      res.sendStatus(401);
+    }
+  });
     /* Logout Route
 ========================================================= */
-router.delete('/', async (req, res) => {
+router.delete('/',  (req, res) => {
   const { users, cookies: { auth_token: authToken } } = req
   if (users && authToken) {
-    await req.users.logout(authToken);
-    return res.status(204).send()
+     req.users.logout(authToken);
+    return res.sendStatus(200)
   }
-  return res.status(400).send(
-    { errors: [{ message: 'not authenticated' }] }
-  );
+  return res.sendStatus(400)
 });
 
 module.exports = router;
