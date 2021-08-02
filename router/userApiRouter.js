@@ -14,8 +14,8 @@ router.post("/",  (req, res) =>{
        lastName: req.body.lastName,
        email: req.body.email,
        password: bcrypt.hashSync(req.body.password, 10),
-    });
-   res.sendStatus(200).send(user);
+    }).then(newUser => res.send(newUser))
+        res.status(201);
   }catch (e){
     console.log(e)
     res.sendStatus(401);
@@ -28,9 +28,9 @@ router.get("/login",  (req, res) => {
       const user =  User.findOne({ where: { email: req.body.email, password: req.body.password } });
       if (user) {
         if (bcrypt.compareSync(req.body.password, user.password)) {
-          res.sendStatus(200).send(user);
+          res.status(200).send(user);
         }
-        res.sendStatus(200).send( user );
+        res.status(200).send( user );
       }
     }catch{
        res.sendStatus(401);
@@ -42,8 +42,9 @@ router.get("/login",  (req, res) => {
 ========================================================= */
 router.get("/",  (req, res)=>{
   try{
-    const users = User.findAll();
-    res.sendStatus(200).send(users);
+     User.findAll()
+    .then(users => res.send(users))
+      res.status(201);
   }catch{
     res.sendStatus(404);
   }
@@ -53,10 +54,12 @@ router.get("/",  (req, res)=>{
 
 router.get("/:username", (req, res)=>{
   try{
-        const user = User.findAll({
+       User.findAll({
           where:{username: req.params.username}
           ,order: [['createdAt', 'DESC']]})
-        res.sendStatus(200).send(user)
+          .then(user => res.send(user))
+          res.status(201);
+
   }catch{
     res.sendStatus(404);
   }
@@ -88,8 +91,8 @@ router.get("/:username", (req, res)=>{
 ========================================================= */
   router.delete('/:username', (req, res) => {
       try {
-           User.destroy({where:{username: req.params.username}});
-          res.sendStatus(200); 
+           User.destroy({where:{username: req.params.username}})
+           res.sendStatus(201)
       } catch {
         res.sendStatus(404);
       }
@@ -116,30 +119,27 @@ router.get("/:username", (req, res)=>{
 
   router.patch("/:username",  (req, res) =>{
     try{
-      
-    const user = User.update({ username: req.body.username ,
+    User.update({ username: req.body.username ,
          firstName: req.body.firstName,
          lastName: req.body.lastName,
          email: req.body.email,
          password: bcrypt.hashSync(req.body.password, 10)}
-        ,{where: {username: req.params.username} }
-         
-      );
-     res.sendStatus(200);
+        ,{where: {username: req.params.username}})
+           res.sendStatus(201);
     }catch (e){
       console.log(e)
-      res.sendStatus(401);
+      res.sendStatus(404);
     }
   });
     /* Logout Route
 ========================================================= */
-router.delete('/',  (req, res) => {
+router.delete('/logout',  (req, res) => {
   const { users, cookies: { auth_token: authToken } } = req
   if (users && authToken) {
      req.users.logout(authToken);
-    return res.sendStatus(200)
+    return res.sendStatus(201)
   }
-  return res.sendStatus(400)
+  return res.sendStatus(404)
 });
 
 module.exports = router;

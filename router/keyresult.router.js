@@ -4,7 +4,9 @@ const { Objective ,User, Keyresult} = require('../models/index');
 
 router.get("/", (req, res)=>{
   try{
-    res.send( Keyresult.findAll());
+    Keyresult.findAll()
+    .then(Keyresults => res.send(Keyresults))
+    res.status(201);
   }catch{
     res.sendStatus(500);
   }
@@ -12,12 +14,14 @@ router.get("/", (req, res)=>{
 
 router.get("/:id",(req, res)=>{
   try {
-    res.send( Keyresult.findAll({
+ Keyresult.findAll({
       where: { id: req.params.id },
       order: [['createdAt', 'DESC']]
-    }));
+    })
+    .then(Keyresult => res.send(Keyresult))
+    res.status(201);
   } catch {
-    res.sendStatus(500);
+    res.sendStatus(404);
   }
 })
 
@@ -33,8 +37,9 @@ router.post("/", (req, res) => {
           endDate: req.body.endDate,
           progressType: req.body.progressType,
           description: req.body.description
-        });
-        res.sendStatus(200);
+        })
+        .then(newKeyresult => res.send(newKeyresult))
+        res.status(201);
     }catch (e) {
       console.log(e);
       res.sendStatus(500);
@@ -53,8 +58,7 @@ router.patch('/:id',  (req, res) => {
             description: req.body.description
           },
           {where:{id: req.params.id}});
-      
-          res.sendStatus(200);
+          res.sendStatus(201);
       } catch (e) {
         console.log(e)
         res.sendStatus(404);
@@ -66,7 +70,7 @@ router.delete('/:id',  (req, res) => {
         Keyresult.destroy({
         where: { id: req.params.id}
       });
-      res.send();
+      res.sendStatus(201);
     } catch {
       res.sendStatus(500);
     }

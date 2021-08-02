@@ -4,7 +4,9 @@ const { Objective ,User} = require('../models/index');
 
 router.get("/", (req, res)=>{
   try{
-    res.send( Objective.findAll());
+   Objective.findAll()
+    .then(Objectives => res.send(Objectives))
+    res.status(201);
   }catch{
     res.sendStatus(500);
   }
@@ -12,10 +14,12 @@ router.get("/", (req, res)=>{
 
 router.get("/:id",(req, res)=>{
   try {
-    res.send( Objective.findAll({
+    Objective.findAll({
       where: { id: req.params.id },
       order: [['createdAt', 'DESC']]
-    }));
+    })
+    .then(Objective => res.send(Objective))
+    res.status(201);
   } catch {
     res.sendStatus(500);
   }
@@ -23,7 +27,6 @@ router.get("/:id",(req, res)=>{
 
 router.post("/", (req, res) => {
     try {
-      
          Objective.create({
           ownerUsername: req.body.ownerUsername,
           title: req.body.title,
@@ -33,8 +36,9 @@ router.post("/", (req, res) => {
           endDate: req.body.endDate,
           progressType: req.body.progressType,
           description: req.body.description
-        });
-        res.sendStatus(200);
+        })
+        .then(newObjective => res.send(newObjective))
+         res.status(201);
     }catch (e) {
       console.log(e);
       res.sendStatus(500);
@@ -52,9 +56,9 @@ router.patch('/:id',  (req, res) => {
             progressType: req.body.progressType,
             description: req.body.description
           },
-          {where:{id: req.params.id}});
-      
-          res.sendStatus(200);
+          {where:{id: req.params.id}})
+          .then(updateObjective => res.send(updateObjective))
+          res.status(201);
       } catch (e) {
         console.log(e)
         res.sendStatus(404);
@@ -66,9 +70,9 @@ router.delete('/:id',  (req, res) => {
       Objective.destroy({
         where: { id: req.params.id}
       });
-      res.send();
+      res.sendStatus(201);
     } catch {
-      res.sendStatus(500);
+      res.sendStatus(404);
     }
 });
 
